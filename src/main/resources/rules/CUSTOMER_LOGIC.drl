@@ -1,0 +1,44 @@
+import com.example.droolsdemo.entity.CustomerBean;
+import com.example.droolsdemo.entity.ErrorMessage;
+import com.example.droolsdemo.entity.SendingInfomation;
+import org.apache.commons.lang3.StringUtils;
+import java.util.*;
+
+global com.example.droolsdemo.entity.ErrorMessage Errmessage
+
+dialect  "mvel"
+
+rule "Can enable usingMailingAgent"
+  activation-group "myGroup1"
+  when
+    customer:CustomerBean(zipCode != null && name != null && address1 != null )
+    exists SendingInfomation()
+    sendingInformation:SendingInfomation(senderInfo!= null)
+  then
+    customer.setUsingMailingAgent(true);
+end
+
+rule "Can enable usingMailingAgent 2"
+  activation-group "myGroup1"
+  when
+    customer:CustomerBean(zipCode != null && name != null && address2 != null)
+    exists SendingInfomation()
+    sendingInformation:SendingInfomation(senderInfo!= null)
+  then
+    customer.setUsingMailingAgent(true);
+end
+
+rule "Can't enable usingMailingAgent: no SendingInfo"
+  when
+    sendingInformation:SendingInfomation(senderInfo == null)
+  then
+    Errmessage.setErrorString("No sending information");
+end
+
+rule "Can't enable usingMailingAgent: not exist SendingInformation"
+  when
+    not SendingInfomation()
+  then
+    Errmessage.setErrorString("Not exists sending information");
+end
+
